@@ -1,0 +1,56 @@
+8-31-99
+================================================================
+Model Name              : Battle droid
+installation directory  : quake2/baseq2/players/bdroid
+Author                  : Jon "shine" Jones <shine@planetquake.com>
+Skin Mapping            : Chris Holden <shatter@planetquake.com>
+Skin Author             : Burnt Kona <burntkona@webtribe.net> 
+Sounds                  : Eric von Rothkirch <redchurch@USWest.net>
+
+Model description       :  This is the Battle Droid from the new Star Wars movie. No creative introduction, no clever back story, nothing, just a plain ol' battle droid.
+
+Additional URLs:
+
+Chris Holden and Jon Jones's webpage: http://www.planetquake.com/shattered/
+Burnt Kona's webpage: http://www.webtribe.net/d/darktech
+Eric von Rothkirch's webpage: http://www.redchurch.com/
+
+Other info              : There are three inaccuracies: One, the back of the head has only one prong instead of two (I couldn't tell from the image). Two, he has no thumbs (forgot, then decided to keep them off). Three, he has no backpack. :) Nothing really that drastic, he's still VERY recognizable in the game, though he has a pretty high poly count (sheeewhewwww! 1100+!) and more time could have gone into optimizing him. Sorry for that. :p 
+
+Additional Credits to   : Chris Holden for the skin mapping.
+			  Burnt Kona for doing the following skins: OOM-9, Infantry, Pilot, 				Security. 
+			  Eric von Rothkirch for the sounds.
+			  Wrath for giving me the modeling references that I did this from.
+			  Magarnigal, Wrath, Gwot, and Kau for giving me valuable critiques\advice.
+
+Thanks to               : 
+	Chris Holden for being patient, cool, productive, and for buying me a Coke.
+	the following people for their various direct and indirect contributions: Burnt Kona, Redchurch, EvilBastard, Wrath, Magarnigal, Gwot, Kau, Brian Yee, Rogue13, da boys at Sunstorm, III_Demon, id, and Newtek.
+	Frontline Assembly for being ALL I listen to anymore while I model.
+================================================================
+* Play Information *
+
+New Sounds              : Yes.
+CTF Skins               : Yes.
+VWEP Support            : No.
+
+
+* Construction *
+Poly Count              : tris = 1200, weapon = 137
+Vert Count              : Does this matter?
+Skin Count              : Lots!
+Base                    : None. I make everything from scratch. :)
+Editor used             : Lightwave 3D 5.6, Paint Shop Pro 5.0, NPherno's Skin Tool
+Known Bugs              : His arms kinda twist sideways sometimes and his feet deform strangely, but nothing THAT noticeable. I did surprisingly well on this one. :)
+Build/Animation time    : 30+ hours for the first set of animations, and another 30% for when I redid all of them again, as per usual.
+
+
+* How to use this model *
+
+Unzip to your Quake 2 directory with directories recursed. It'll put it in the proper quake2/baseq2/players/bdroid/ directory all by itself unless you decide to do it your own way, which is fine, but why exert yourself?
+
+* Copyright / Permissions *
+
+QUAKE(R) and QUAKE II(R) are registered trademarks of id Software, Inc.
+
+Don't reproduce the model without permission, don't use it in a TC without permission, and don't use it for anything other than playing Quake 2 and having fun. also, if you use this PPM and you don't advertise how cool it is and who made it every frag you get, we'll send people to your house to kill you and your family and anyone who ever knew you, including your dog, then piss on your grave and sell your personal possessions to the highest bidder.
