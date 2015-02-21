@@ -4,10 +4,25 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, OpenGL,jpeg,
-  StdCtrls, ExtCtrls, Dialogs, ExtDlgs, XPMan, ComCtrls,GraphicEx ,
-core3d;
+  StdCtrls, ExtCtrls, Dialogs, ExtDlgs, XPMan, ComCtrls,GraphicEx ,Math,
+core3d, Menus;
 
 type
+
+TProject=record
+ filename:array [0..128]of Char;
+ comments:array[0..256]of Char;
+ texture:array [0..128]of Char;
+ rotation:vector3d;
+ posx,posy:single;
+ scale:vector3d;
+ scaleMult:Single;
+ r,g,b,a:integer;
+ savetype:Integer;
+ camr,camg,camb:Integer;
+end;
+
+
   TForm1 = class(TForm)
     Timer1: TTimer;
     Panel2: TPanel;
@@ -68,7 +83,6 @@ type
     ComboBox: TComboBox;
     Panel1: TPanel;
     Button12: TButton;
-    Button13: TButton;
     RadioGroup2: TRadioGroup;
     RadioGroup3: TRadioGroup;
     Label25: TLabel;
@@ -97,8 +111,14 @@ type
     TrackBar2: TTrackBar;
     TrackBar11: TTrackBar;
     TrackBar12: TTrackBar;
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure FormCreate(Sender: TObject);
+    mm1: TMainMenu;
+    Fil1: TMenuItem;
+    Open1: TMenuItem;
+    SaveAS1: TMenuItem;
+    dlgOpen1: TOpenDialog;
+    dlgSave1: TSaveDialog;
+    Save1: TMenuItem;
+    btn1: TButton;
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
@@ -139,26 +159,37 @@ type
     procedure TrackBar14Change(Sender: TObject);
     procedure TrackBar15Change(Sender: TObject);
     procedure scrlbr1Change(Sender: TObject);
+    procedure RadioGroup1Click(Sender: TObject);
+    procedure Save1Click(Sender: TObject);
+
+       procedure FormClose(Sender: TObject; var Action: TCloseAction);
+      procedure FormCreate(Sender: TObject);
+    procedure Open1Click(Sender: TObject);
+    procedure SaveAS1Click(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure btn1Click(Sender: TObject);
+
   private
     { Private declarations }
   public
        procedure IdleEvent(Sender: TObject; var Done: Boolean);
 
+      procedure writedate();
+      procedure readdata();
+
+      procedure loadmodelproject();
+
     { Public declarations }
   end;
 
-  PGLRGBQUAD = ^TGLRGBQUAD;
-  tagGLRGBQUAD = packed record
-    red : Byte;
-    green : Byte;
-    blue : Byte;
-    alpha : Byte;
-  end;
-    TGLRGBQUAD = tagGLRGBQUAD;
+
 
 
 var
   Form1: TForm1;
+
+  project:TProject;
  rendercam, camera:ICAMERA;
 
   imagepower:integer;
@@ -166,15 +197,17 @@ var
   imagey:integer=500 div 2;
 
   disablerect:boolean=false;
-
+  lastsave:string='defaul.gen';
+  path:string;
   vmbleft:boolean;
   vmbright:boolean;
-
+      drag:Boolean=False;
   tex:Itexture;
 
   scale:single=1;
 
-
+   modelLoaded:string;
+   textureloaded:string;
 
   drtex:ITEXTURE;
   gunmodel,model:INOde;
@@ -182,10 +215,10 @@ var
     FRC            : HGLRC;           // Rendering Context
     FDC            : HDC;             // Device Context
 
-    minframe:single=1000;
-    maxFrame:single=-1000;
-    frame:single;
-
+    minframe:integer=1000;
+    maxFrame:integer=-1000;
+    frame:integer;
+      posy, posx:single;
     maxtextures:integer;
     maxjoints:integer;
 
@@ -194,86 +227,6 @@ var
 implementation
 
 {$R *.dfm}
-
-
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-procedure ScreenShot(px,py,w,h:integer;FileName: TFileName);
-var
-  rgbBits : PGLRGBQUAD;
-  x, y : Integer;
-  pixel : PGLRGBQUAD;
-  tmp : Byte;
-
-  I : Integer;            // Loop counter
-  top : PGLRGBQUAD;          // Pointer to top line in the image
-  bottom : PGLRGBQUAD;       // Pointer to bottom line in the image
-  tmpBits : PGLRGBQUAD; // Temporarily holds one line in image
-  line : Integer;
-
-
-begin
-  GetMem(rgbBits, w*h*4);
-  glFinish();
-  glPixelStorei( $8758, 1);
-  glPixelStorei(GL_PACK_ALIGNMENT, 4);
-  glPixelStorei(GL_PACK_ROW_LENGTH, 0);
-  glPixelStorei(GL_PACK_SKIP_ROWS, 0);
-  glPixelStorei(GL_PACK_SKIP_PIXELS, 0);
-//  glReadPixels(px,py,w,h, GL_RGBA, GL_UNSIGNED_BYTE, rgbBits);
- glReadPixels(px,py,w,h, $80E1, GL_UNSIGNED_BYTE, rgbBits);
-
-
-
-    line := w * 4;
-    GetMem(tmpBits, line);
-
-    top := rgbBits;
-    bottom := Ptr(Integer(rgbBits) + line*(h-1));
-
-    for I := 0 to (h shr 1)-1 do
-    begin
-      Move(top^, tmpBits^, line);
-      Move(bottom^, top^, line);
-      Move(tmpBits^, bottom^, line);
-      top := Ptr(Integer(top) + line);
-      bottom := Ptr(Integer(bottom) - line);
-    end;
-    FreeMem(tmpBits);
-
-               {
-   pixel := rgbBits;
-  for x := 0 to w - 1 do begin
-    for y := 0 to h - 1 do begin
-      tmp := pixel.blue;
-      pixel.blue := pixel.red;
-      pixel.red := tmp;
-
-      Inc(pixel);
-    end;
-  end;  }
-
-     SaveBufferToFile(rgbBits,w,h,pchar(filename));
-
-     FreeMem(rgbBits);
-     rgbBits := nil;
-
-
-end;
-
-procedure ScreenMultiShot(x,y,w,h:integer);
-var FileName: String;
-var i: Integer;
-begin
-  i:=0;
-  repeat
-    inc(i);
-    FileName:=ExtractFilePath(ParamStr(0))+'save\'+FormatFloat('Screen0000', i)+'.png';
-  until not FileExists(FileName);
-  ScreenShot(x,y,w,h,FileName);
-  disablerect:=false;
-end;
 
 
 
@@ -300,18 +253,136 @@ end;
 
 
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
+var
+      savefile:Tmemorystream;
 begin
 //  application.OnIdle:=nil;
  // EndEngine;
 timer1.Enabled:=false;
+
+writedate();
+
+    savefile:=Tmemorystream.Create();
+    savefile.Write(project,SizeOf(TProject));
+    savefile.SaveToFile(lastsave);
+    savefile.Destroy();
+
 //FreeEngine;
 end;
 
+procedure TForm1.loadmodelproject() ;
+begin
+  if assigned(gunmodel) then
+begin
+DeleteNode(gunmodel);
+gunmodel:=nil;
+end;
+DeleteNode(model);
+model:=nil;
+
+if (FileExists(modelLoaded)) then
+begin
+model := LoadMesh(pchar(modelLoaded));
+NodeLight(model,FALSE);
+NodeCulling(model,EAC_OFF);
+maxtextures:=MaterialCount(model);
+ScrollBar1.Max:=maxtextures-1;
+label3.Caption:='Total Of Materials:'+inttostr(maxtextures);
+if (ExtractFileExt(modelLoaded)='.md2') then exit;
+maxjoints:=CountJoint(model);
+label16.Caption:='Total Of Joints:'+inttostr(maxjoints);
+ScrollBar2.Max:=maxjoints;
+
+
+  if Assigned(model) then
+  begin
+
+  if (FileExists(project.texture)) then
+  begin
+   NodeTexture(model,LoadTexture(PChar(strpas(project.texture))),0);
+  end;
+
+
+
+  PositionNode(model,-posx/1,posy/1,0);
+  ScaleNode(model,trackbar13.Position/scale,trackbar14.Position/scale,trackbar15.Position/scale);
+  RotateNodeDeg(model,trackbar5.Position*deg,trackbar6.Position*deg,trackbar7.Position*deg);
+  end;
+end else
+begin
+  ShowMessage('File '+ modelLoaded+'Dont exists');
+end;
+
+end;
+procedure TForm1.writedate();
+begin
+
+
+StrLCopy(project.filename, PChar(modelLoaded), High(project.filename));
+
+  project.comments:='main project';
+
+
+StrLCopy(project.texture, PChar(textureloaded), High(project.texture));
+
+  project.rotation:=vector(trackbar5.Position,trackbar6.Position,trackbar7.Position);
+  project.posx:=posx;
+  project.posy:=posy;
+  project.scale:=vector(trackbar13.Position,trackbar14.Position,trackbar15.Position);
+  project.scaleMult:=scale;
+  project.b:=TrackBar3.Position;
+  project.g:=TrackBar9.Position;
+  project.r:=TrackBar10.Position;
+  project.a:=TrackBar12.Position;
+  project.savetype:=RadioGroup1.ItemIndex;
+
+project.camr:= trackbar3.Position;
+project.camg:= trackbar9.Position;
+project.camb:= trackbar10.Position;
+
+
+
+end;
+procedure TForm1.readdata();
+begin
+modelLoaded:=project.filename;
+project.comments:='main project';
+textureloaded:=project.texture;
+
+trackbar3.Position:=project.camr;
+trackbar9.Position:=project.camg;
+trackbar10.Position:=project.camb;
+
+// camr,camg,camb:Integer;
+
+trackbar5.Position:=Round(project.rotation.x);
+trackbar6.Position:=Round(project.rotation.y);
+trackbar7.Position:=Round(project.rotation.z);
+posx:=project.posx;
+posy:=project.posy;
+
+
+trackbar13.Position:=Round(project.scale.x/project.scaleMult);
+trackbar14.Position:=Round(project.scale.y/project.scaleMult);
+trackbar15.Position:=Round(project.scale.z/project.scaleMult);
+scale:=project.scaleMult;
+scrlbr1.Position:=Round(project.scaleMult);
+TrackBar3.Position:=project.b;
+TrackBar9.Position:=project.g;
+TrackBar10.Position:=project.r;
+TrackBar12.Position:=project.a;
+RadioGroup1.ItemIndex:=project.savetype;
+
+
+
+BackGroundColor(TrackBar3.Position,TrackBar9.Position,TrackBar10.Position);
+
+end;
 
 
 procedure TForm1.FormCreate(Sender: TObject);
-var pfd : TPIXELFORMATDESCRIPTOR;
-    pf  : Integer;
+var
+      savefile:Tmemorystream;
 begin
 
 
@@ -319,35 +390,42 @@ begin
 
 InitEngineEx(DOPENGL,panel1.Handle,panel1.Width,panel1.Height,32,false,false);
 BackGroundColor(TrackBar3.Position,TrackBar9.Position,TrackBar10.Position);
-AmbientLight(128,128,128);
+//AmbientLight(128,128,128);
 
 
 
 
-//rendercam:=CreateCamera();
+
+
 rendercam:=CreateCameraIsometric(800,600,-100000,100000);
-//CameraTarget(rendercam,0,0,0);
-//PositionNode(rendercam,0,0,-10);
-
-//camera := CreateCamera();
 camera:=CreateCameraIsometric(800,600,-10000,10000);
-//CameraTarget(camera,0,0,0);
-//PositionNode(camera,0,0,-100);
 
+
+
+    savefile:=Tmemorystream.Create();
+    savefile.LoadFromFile('defaul.gen');
+    savefile.Read(project,SizeOf(TProject));
+    savefile.Destroy();
+    readdata();
+    loadmodelproject();
+
+
+        {
+modelLoaded:='media\models\marine.MD2';
+textureloaded:='media\textures\marine.MD2USMC_resultado.jpg';
 model:=loadmesh('media\models\marine.MD2');
 NodeTexture(model,LoadTexture('media\textures\marine.MD2USMC_resultado.jpg'),0);
 NodeLight(model,FALSE);
 NodeCulling(model,EAC_OFF);
-
+         }
+       {
 gunmodel:=loadmesh('media\models\MARINE weapon.MD2');
 NodeTexture(gunmodel,LoadTexture('media\textures\MARINE weapon.MD2.jpg'),0);
 NodeLight(gunmodel,FALSE);
 NodeCulling(gunmodel,EAC_OFF);
-
-
 NodeParent(gunmodel,model);
 
-
+      }
 
 tex:=CreateRTT(128,128);
 
@@ -359,24 +437,6 @@ label3.Caption:='Total Of Materials:'+inttostr(maxtextures);
 ScrollBar1.Max:=maxtextures-1;
 
 label4.Caption:='Texture Layer:'+inttostr(ScrollBar1.Position);
-      {
- FDC := GetDC(Handle);
-
-  FDC:=GetDC(form1.Handle);
-  pfd.nSize:=SizeOf(pfd);
-  pfd.nVersion:=1;
-  pfd.dwFlags:=PFD_DRAW_TO_WINDOW or PFD_SUPPORT_OPENGL or PFD_DOUBLEBUFFER or 0;
-  pfd.iPixelType:=PFD_TYPE_RGBA;      // PFD_TYPE_RGBA or PFD_TYPEINDEX
-  pfd.cColorBits:=32;
-
-  pf :=ChoosePixelFormat(FDC, @pfd);   // Returns format that most closely matches above pixel format
-  SetPixelFormat(FDC, pf, @pfd);
-
-  FRC :=wglCreateContext(FDC);    // Rendering Context = window-glCreateContext
-  wglMakeCurrent(FDC,FRC);        // Make the DC (Form1) the rendering Context
-
-  }
-
 
 
 
@@ -528,7 +588,7 @@ frameend:=strtoint(edit8.Text);
 ProgressBar2.Max:=frameend;
 ProgressBar2.Min:=framebegin;
 
-totalframes:=(frameend-framebegin);
+totalframes:=(frameend-framebegin)+1;
 arrow:=round(sqrt(totalframes));
 
 imagewidth:=(imagepower*arrow);
@@ -606,26 +666,9 @@ ProgressBar2.Position:=0;
 
  FileName:=ExtractFilePath(ParamStr(0))+'save\'+FormatFloat(edit9.Text+'_'+'0000', frame_tile)+'.'+savetype;
 
-//FileName:=ExtractFilePath(ParamStr(0)+'save\'+edit9.Text+'.'+savetype);
-
-
- // if (savepowerof2) then
-//  SaveImage(imagesave,pchar('save\'+edit9.Text+'.'+savetype)) else
   SaveImage(imagesave,pchar(filename));
 
 
- // imagesave:=nil;
- // imgblit:=nil;
-
-
-
-
-
-
-//SaveImage(imagesave,'save\spriteshetp2.png');
-
-
- // timer1.Enabled:=true;
 
 end;
 
@@ -643,6 +686,8 @@ texture:=OpenPictureDialog1.FileName;
 
 if fileexists(texture) then
 begin
+     textureloaded:=texture;;
+
 NodeTexture(model,LoadTexture(pchar(texture)),ScrollBar1.Position);
 end;
 
@@ -719,9 +764,16 @@ openDialog1.Title:=openDialog1.InitialDir;
 if (openDialog1.Execute) then
 begin
 
+   modelLoaded:=opendialog1.FileName;
+
+
 model := LoadMesh(pchar(opendialog1.FileName));
 NodeLight(model,FALSE);
 NodeCulling(model,EAC_OFF);
+
+RotateNodeDeg(model,trackbar5.Position*deg,trackbar6.Position*deg,trackbar7.Position*deg);
+ScaleNode(model,trackbar13.Position/scale,trackbar14.Position/scale,trackbar15.Position/scale);
+
 
 maxtextures:=MaterialCount(model);
 
@@ -968,7 +1020,13 @@ DrawSceneToTexture(tex,TrackBar1.Position,TrackBar2.Position,TrackBar11.Position
 
 ActiveCamera(camera);
 SetCameraViewPort(0,0,panel1.Width,panel1.Height);
+if(drag) then
+begin
+if CheckBox3.Checked then   DrawNodeTrasformBox(model,random($FFFFFFFF));
+end else
+begin
 if CheckBox3.Checked then   DrawNodeTrasformBox(model,$FFFFFFFF);
+end;
 
 
  	UpdateEngine;
@@ -992,36 +1050,39 @@ if CheckBox1.Checked then
 begin
 TrackBar4.Enabled:=true;
 AnimateFrame(model,TrackBar4.Position);
-if assigned(gunmodel) then
-begin
-AnimateFrame(gunmodel,TrackBar4.Position);
-end;
 
 end else
 begin
   TrackBar4.Enabled:=false;
 end;
 
+
+if assigned(gunmodel) then
+begin
+AnimateFrame(gunmodel,CurrentFrame(model));
+end;
+
+
 label7.Caption:='X:'+inttostr(TrackBar5.Position);
 label8.Caption:='Y:'+inttostr(TrackBar6.Position);
 label9.Caption:='Z:'+inttostr(TrackBar7.Position);
 
 frame:=CurrentFrame(model);
-label10.Caption:='Frame:'+ftos(frame);
+label10.Caption:='Frame:'+inttostr(frame);
 label11.Caption:='Speed:'+ftos(CurrentFrameSpeed(model));
-label25.Caption:='Frame:'+ftos(frame);
+label25.Caption:='Frame:'+inttostr(frame);
 label26.Caption:='Speed:'+ftos(CurrentFrameSpeed(model));
 
 
-minframe:=min(frame,minframe);
-maxframe:=max(frame,maxframe);
+minframe:=Math.min(frame,minframe);
+maxframe:=Math.max(frame,maxframe);
 
 
-label1.Caption:='Min Frame:'+ftos(minframe);
-label2.Caption:='Max Frame:'+ftos(maxframe);
+label1.Caption:='Min Frame:'+inttostr(minframe);
+label2.Caption:='Max Frame:'+inttostr(maxframe);
 
-label28.Caption:='Min Frame:'+ftos(minframe);
-label29.Caption:='Max Frame:'+ftos(maxframe);
+label28.Caption:='Min Frame:'+inttostr(minframe);
+label29.Caption:='Max Frame:'+inttostr(maxframe);
 
 
 
@@ -1077,26 +1138,21 @@ if (button=mbRight) then
 begin
   vmbleft:=false;
   vmbright:=true;
-
+   drag:=True;
 
 end;
 end;
 
 procedure TForm1.Panel1MouseMove(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
- var posy, posx:single;
-begin
-  if (vmbleft) then
-  begin
 
+begin
+if(drag) then
+  if (vmbright) then
+  begin
      posx:=500-x;
      posy:=300-y;
-
-
      PositionNode(model,-posx/1,posy/1,0);
-
-  
-
    end;
 end;
 
@@ -1105,6 +1161,7 @@ procedure TForm1.Panel1MouseUp(Sender: TObject; Button: TMouseButton;
 begin
  vmbleft:=false;
   vmbright:=false;
+  drag:=False;
 end;
 
 procedure TForm1.Button12Click(Sender: TObject);
@@ -1187,6 +1244,88 @@ procedure TForm1.scrlbr1Change(Sender: TObject);
 begin
 scale:=scrlbr1.Position;
 ScaleNode(model,trackbar13.Position/scale,trackbar14.Position/scale,trackbar15.Position/scale);
+end;
+
+procedure TForm1.RadioGroup1Click(Sender: TObject);
+begin
+case RadioGroup1.ItemIndex of
+0:imagepower:=32;
+1:imagepower:=64;
+2:imagepower:=128;
+3:imagepower:=256;
+4:imagepower:=512;
+end;
+
+RemoveTexture(tex);
+tex:=nil;
+tex:=CreateRTT(imagepower,imagepower);
+end;
+
+procedure TForm1.Save1Click(Sender: TObject);
+var
+      savefile:Tmemorystream;
+begin
+
+writedate();
+
+    savefile:=Tmemorystream.Create();
+    savefile.Write(project,SizeOf(TProject));
+    savefile.SaveToFile(lastsave);
+    savefile.Destroy();
+end;
+
+procedure TForm1.Open1Click(Sender: TObject);
+var
+      savefile:Tmemorystream;
+begin
+   if(dlgOpen1.Execute) then
+   begin
+    lastsave:=dlgOpen1.FileName;
+    savefile:=Tmemorystream.Create();
+    savefile.LoadFromFile(dlgOpen1.FileName);
+    savefile.Read(project,SizeOf(TProject));
+    savefile.Destroy();
+    readdata();
+    loadmodelproject();
+    end;
+
+end;
+
+procedure TForm1.SaveAS1Click(Sender: TObject);
+var
+      savefile:Tmemorystream;
+begin
+   if(dlgSave1.Execute) then
+   begin
+    writedate();
+     lastsave:=dlgSave1.FileName;
+    savefile:=Tmemorystream.Create();
+    savefile.Write(project,SizeOf(TProject));
+    savefile.SaveToFile(dlgSave1.FileName);
+    savefile.Destroy();
+    end;
+
+end;
+
+procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+if  ssShift in shift then
+begin
+ drag:=True;
+// Showmessage('The Shift button is down!');
+end else
+begin
+drag:=False;
+
+end;
+end;
+
+procedure TForm1.btn1Click(Sender: TObject);
+begin
+     posx:=0;
+     posy:=0;
+     PositionNode(model,0,0,0);
 end;
 
 end.

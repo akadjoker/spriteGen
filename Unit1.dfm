@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 141
-  Top = 32
+  Left = 71
+  Top = 52
   Width = 1123
   Height = 630
   Caption = 'Form1'
@@ -10,9 +10,11 @@ object Form1: TForm1
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  Menu = mm1
   OldCreateOrder = False
   OnClose = FormClose
   OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
   OnMouseWheel = FormMouseWheel
   PixelsPerInch = 96
   TextHeight = 13
@@ -27,7 +29,7 @@ object Form1: TForm1
     Left = 922
     Top = 0
     Width = 185
-    Height = 592
+    Height = 572
     Align = alRight
     Caption = 'Panel2'
     TabOrder = 0
@@ -35,7 +37,7 @@ object Form1: TForm1
       Left = 1
       Top = 1
       Width = 183
-      Height = 590
+      Height = 570
       ActivePage = TabSheet4
       Align = alClient
       TabOrder = 0
@@ -133,8 +135,8 @@ object Form1: TForm1
           Left = 64
           Top = 112
           Width = 49
-          Height = 26
-          Caption = 'Min Frame'#13#10
+          Height = 13
+          Caption = 'Min Frame'
         end
         object Label15: TLabel
           Left = 59
@@ -310,11 +312,11 @@ object Form1: TForm1
         object Label18: TLabel
           Left = 19
           Top = 272
-          Width = 22
+          Width = 3
           Height = 13
         end
         object Label12: TLabel
-          Left = 64
+          Left = 52
           Top = 248
           Width = 56
           Height = 13
@@ -323,22 +325,22 @@ object Form1: TForm1
         object Label22: TLabel
           Left = 28
           Top = 270
-          Width = 21
-          Height = 19
+          Width = 6
+          Height = 13
           Caption = 'x'
         end
         object Label23: TLabel
           Left = 128
           Top = 269
-          Width = 25
-          Height = 20
+          Width = 6
+          Height = 13
           Caption = 'y'
         end
         object Label30: TLabel
           Left = 72
           Top = 271
-          Width = 25
-          Height = 26
+          Width = 5
+          Height = 13
           Caption = 'z'
         end
         object lbl1: TLabel
@@ -379,7 +381,7 @@ object Form1: TForm1
           OnChange = TrackBar7Change
         end
         object Button12: TButton
-          Left = 40
+          Left = 6
           Top = 216
           Width = 75
           Height = 25
@@ -423,6 +425,8 @@ object Form1: TForm1
           Width = 97
           Height = 17
           Caption = 'Lock Scale'
+          Checked = True
+          State = cbChecked
           TabOrder = 7
         end
         object scrlbr1: TScrollBar
@@ -435,6 +439,15 @@ object Form1: TForm1
           Position = 1
           TabOrder = 8
           OnChange = scrlbr1Change
+        end
+        object btn1: TButton
+          Left = 96
+          Top = 216
+          Width = 75
+          Height = 25
+          Caption = 'Center'
+          TabOrder = 9
+          OnClick = btn1Click
         end
       end
       object TabSheet4: TTabSheet
@@ -463,16 +476,16 @@ object Form1: TForm1
         end
         object Label28: TLabel
           Left = 12
-          Top = 517
+          Top = 501
           Width = 31
           Height = 13
           Caption = 'Label1'
         end
         object Label29: TLabel
           Left = 13
-          Top = 541
+          Top = 521
           Width = 31
-          Height = 13
+          Height = 12
           Caption = 'Label2'
         end
         object Label24: TLabel
@@ -488,6 +501,7 @@ object Form1: TForm1
           Width = 143
           Height = 91
           Caption = 'Image Power Of 2'
+          Columns = 2
           ItemIndex = 2
           Items.Strings = (
             '32'
@@ -496,15 +510,7 @@ object Form1: TForm1
             '256'
             '512')
           TabOrder = 0
-        end
-        object Button13: TButton
-          Left = 64
-          Top = 48
-          Width = 75
-          Height = 25
-          Caption = 'Set'
-          TabOrder = 1
-          OnClick = Button13Click
+          OnClick = RadioGroup1Click
         end
         object RadioGroup2: TRadioGroup
           Left = 16
@@ -517,7 +523,7 @@ object Form1: TForm1
           Items.Strings = (
             'YES'
             'NO')
-          TabOrder = 2
+          TabOrder = 1
         end
         object RadioGroup3: TRadioGroup
           Left = 8
@@ -531,14 +537,14 @@ object Form1: TForm1
             'PNG'
             'TGA'
             'BMP')
-          TabOrder = 3
+          TabOrder = 2
         end
         object Edit7: TEdit
           Left = 13
           Top = 269
           Width = 52
           Height = 21
-          TabOrder = 4
+          TabOrder = 3
           Text = '0'
         end
         object Edit8: TEdit
@@ -546,7 +552,7 @@ object Form1: TForm1
           Top = 269
           Width = 57
           Height = 21
-          TabOrder = 5
+          TabOrder = 4
           Text = '100'
         end
         object Edit9: TEdit
@@ -554,24 +560,24 @@ object Form1: TForm1
           Top = 301
           Width = 68
           Height = 21
-          TabOrder = 6
+          TabOrder = 5
           Text = 'sprite'
         end
         object Button3: TButton
           Left = 24
-          Top = 455
+          Top = 446
           Width = 121
-          Height = 25
+          Height = 24
           Caption = 'Process..'
-          TabOrder = 7
+          TabOrder = 6
           OnClick = Button3Click
         end
         object ProgressBar2: TProgressBar
           Left = 5
-          Top = 485
+          Top = 476
           Width = 150
           Height = 17
-          TabOrder = 8
+          TabOrder = 7
         end
         object CheckBox2: TCheckBox
           Left = 16
@@ -581,7 +587,7 @@ object Form1: TForm1
           Caption = 'Save Singles'
           Checked = True
           State = cbChecked
-          TabOrder = 9
+          TabOrder = 8
         end
         object TrackBar1: TTrackBar
           Left = 0
@@ -590,8 +596,9 @@ object Form1: TForm1
           Height = 87
           Max = 255
           Orientation = trVertical
-          TabOrder = 10
+          TabOrder = 9
           TickMarks = tmBoth
+          OnChange = TrackBar1Change
         end
         object TrackBar2: TTrackBar
           Left = 39
@@ -600,7 +607,7 @@ object Form1: TForm1
           Height = 86
           Max = 255
           Orientation = trVertical
-          TabOrder = 11
+          TabOrder = 10
           TickMarks = tmBoth
         end
         object TrackBar11: TTrackBar
@@ -610,7 +617,7 @@ object Form1: TForm1
           Height = 87
           Max = 255
           Orientation = trVertical
-          TabOrder = 12
+          TabOrder = 11
           TickMarks = tmBoth
         end
         object TrackBar12: TTrackBar
@@ -621,7 +628,7 @@ object Form1: TForm1
           Max = 255
           Orientation = trVertical
           Position = 255
-          TabOrder = 13
+          TabOrder = 12
           TickMarks = tmBoth
         end
       end
@@ -716,7 +723,7 @@ object Form1: TForm1
     Left = 0
     Top = 0
     Width = 922
-    Height = 592
+    Height = 572
     Align = alClient
     Caption = 'Panel1'
     TabOrder = 1
@@ -752,7 +759,38 @@ object Form1: TForm1
   end
   object OpenDialog2: TOpenDialog
     Filter = 'MD2 Model|*.md2'
-    Left = 736
-    Top = 152
+    Left = 752
+    Top = 144
+  end
+  object mm1: TMainMenu
+    Left = 72
+    Top = 104
+    object Fil1: TMenuItem
+      Caption = 'Project'
+      object Open1: TMenuItem
+        Caption = 'Open'
+        OnClick = Open1Click
+      end
+      object SaveAS1: TMenuItem
+        Caption = 'Save AS'
+        OnClick = SaveAS1Click
+      end
+      object Save1: TMenuItem
+        Caption = 'Save'
+        OnClick = Save1Click
+      end
+    end
+  end
+  object dlgOpen1: TOpenDialog
+    DefaultExt = '*.gen'
+    Filter = 'Sprite Gen|*.gen'
+    Left = 696
+    Top = 240
+  end
+  object dlgSave1: TSaveDialog
+    DefaultExt = '*.gen'
+    Filter = 'Sprite Gen|*.gen'
+    Left = 744
+    Top = 240
   end
 end

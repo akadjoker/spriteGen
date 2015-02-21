@@ -7,3 +7,7 @@ https://www.youtube.com/watch?v=zGU3cI28IOc
 https://www.youtube.com/watch?v=ve0sDqC5y04
 
 By Luis Santos AKA DJOKER
+
+21-02-2015 Updade:
+now save amd load projects 
+right mouse click to drag model
